@@ -1,0 +1,510 @@
+/* =========================================================
+   CAREFLOW — DASHBOARD
+   ========================================================= */
+
+.dashboard {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  color: #e5e7eb;
+}
+
+/* ================= HEADER ================= */
+
+.dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 28px;
+}
+
+.dashboard-header .eyebrow {
+  margin-bottom: 8px;
+  color: #2dd4bf;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #f8fafc;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -1.2px;
+}
+
+.dashboard-header p {
+  margin: 8px 0 0;
+  color: #748198;
+  font-size: 13px;
+}
+
+.dashboard-date {
+  padding: 12px 15px;
+  min-width: 165px;
+  background: #0d141f;
+  border: 1px solid #1d2939;
+  border-radius: 9px;
+}
+
+.dashboard-date span {
+  display: block;
+  margin-bottom: 5px;
+  color: #59677a;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dashboard-date strong {
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ================= STAT CARDS ================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.stat-card {
+  position: relative;
+  min-height: 145px;
+  padding: 18px;
+
+  background: #0d141f;
+  border: 1px solid #1d2939;
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  background: #101925;
+  border-color: #2a3a4e;
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  width: 95px;
+  height: 95px;
+  top: -55px;
+  right: -50px;
+  border-radius: 50%;
+  border: 1px solid rgba(45, 212, 191, 0.08);
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.stat-top > span {
+  color: #78869a;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.stat-icon {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: #102522;
+  border: 1px solid #1d4540;
+
+  color: #38d5c1;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.stat-card > strong {
+  display: block;
+
+  color: #f8fafc;
+
+  font-size: 28px;
+  line-height: 1;
+
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.stat-bottom {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+.stat-bottom span:last-child {
+  color: #59677a;
+  font-size: 9px;
+}
+
+.positive {
+  color: #2dd4bf;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* ================= MAIN PANELS ================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.panel {
+  overflow: hidden;
+
+  background: #0d141f;
+  border: 1px solid #1d2939;
+  border-radius: 10px;
+}
+
+.panel-header {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 15px 18px;
+
+  border-bottom: 1px solid #192536;
+}
+
+.panel-header h2 {
+  margin: 0 0 4px;
+
+  color: #dce4ee;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.panel-header p {
+  margin: 0;
+
+  color: #5f6d80;
+
+  font-size: 9px;
+}
+
+.panel-header button {
+  border: none;
+  background: transparent;
+
+  color: #2dd4bf;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  cursor: pointer;
+}
+
+.panel-header button:hover {
+  color: #99f6e4;
+}
+
+/* ================= APPOINTMENTS ================= */
+
+.appointment {
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 18px;
+
+  border-bottom: 1px solid #172231;
+
+  transition: background 0.15s ease;
+}
+
+.appointment:last-child {
+  border-bottom: none;
+}
+
+.appointment:hover {
+  background: #101a27;
+}
+
+.appointment-person {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #102522;
+  border: 1px solid #1d4540;
+
+  color: #5eead4;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.appointment-person strong {
+  display: block;
+  margin-bottom: 4px;
+
+  color: #cbd5e1;
+
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.appointment-person span {
+  display: block;
+
+  color: #5f6d80;
+
+  font-size: 9px;
+}
+
+.appointment-time {
+  text-align: right;
+}
+
+.appointment-time strong {
+  display: block;
+  margin-bottom: 4px;
+
+  color: #cbd5e1;
+
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.appointment-time span {
+  color: #59677a;
+  font-size: 8px;
+}
+
+/* ================= PATIENTS ================= */
+
+.patient {
+  min-height: 64px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 10px 18px;
+
+  border-bottom: 1px solid #172231;
+
+  transition: background 0.15s ease;
+}
+
+.patient:last-child {
+  border-bottom: none;
+}
+
+.patient:hover {
+  background: #101a27;
+}
+
+.patient-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-info strong {
+  display: block;
+  margin-bottom: 4px;
+
+  color: #cbd5e1;
+
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.patient-info span {
+  display: block;
+
+  color: #5f6d80;
+
+  font-size: 9px;
+}
+
+.status {
+  padding: 4px 8px;
+
+  border-radius: 5px;
+
+  background: #0b211f;
+  border: 1px solid #1c4a43;
+
+  color: #2dd4bf;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+/* ================= BOTTOM CARDS ================= */
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.quick-card {
+  min-height: 105px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 17px 18px;
+
+  background: #0d141f;
+  border: 1px solid #1d2939;
+  border-radius: 10px;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.quick-card:hover {
+  transform: translateY(-2px);
+  border-color: #2a3a4e;
+}
+
+.quick-label {
+  color: #59677a;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 1.2px;
+}
+
+.quick-card h3 {
+  margin: 7px 0 4px;
+
+  color: #d7e0ea;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.quick-card p {
+  margin: 0;
+
+  color: #5f6d80;
+
+  font-size: 9px;
+}
+
+.progress {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  border: 4px solid #182635;
+
+  border-top-color: #2dd4bf;
+  border-right-color: #2dd4bf;
+
+  transform: rotate(25deg);
+}
+
+.activity-number,
+.revenue-number {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #102522;
+  border: 1px solid #1d4540;
+
+  color: #2dd4bf;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1050px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard-date {
+    width: 100%;
+  }
+
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-header h1 {
+    font-size: 28px;
+  }
+}

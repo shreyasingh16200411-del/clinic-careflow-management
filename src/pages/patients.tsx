@@ -1,6 +1,80 @@
+import { useEffect, useState } from "react"
 import "./patients.css"
 
+type Patient = {
+  id: number
+  patient_id: string
+  full_name: string
+  date_of_birth: string | null
+  gender: string | null
+  phone: string | null
+  email: string | null
+  address: string | null
+  medical_history: string | null
+  allergies: string | null
+  status: string
+}
+
 function Patients() {
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    async function loadPatients() {
+      try {
+        setLoading(true)
+        setError("")
+
+        const response = await fetch(
+          "http://127.0.0.1:8000/api/patients/",
+        )
+
+        if (!response.ok) {
+          throw new Error("Failed to load patients.")
+        }
+
+        const data: Patient[] = await response.json()
+
+        setPatients(data)
+      } catch (err) {
+        console.error(err)
+        setError(
+          "Unable to load patients. Please make sure the CareFlow backend is running.",
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPatients()
+  }, [])
+
+  const filteredPatients = patients.filter((patient) => {
+    const search = searchTerm.toLowerCase().trim()
+
+    if (!search) {
+      return true
+    }
+
+    return (
+      patient.full_name.toLowerCase().includes(search) ||
+      patient.patient_id.toLowerCase().includes(search) ||
+      (patient.email ?? "").toLowerCase().includes(search) ||
+      (patient.phone ?? "").toLowerCase().includes(search)
+    )
+  })
+
+  function getInitials(name: string) {
+    return name
+      .split(" ")
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase()
+  }
+
   return (
     <div className="patients-page">
 
@@ -8,8 +82,12 @@ function Patients() {
       <header className="patients-header">
         <div>
           <div className="eyebrow">PATIENT MANAGEMENT</div>
+
           <h1>Patients</h1>
-          <p>Manage patient records, contact information, and status.</p>
+
+          <p>
+            Manage patient records, contact information, and status.
+          </p>
         </div>
 
         <button className="add-patient-btn">
@@ -19,195 +97,152 @@ function Patients() {
 
       {/* Search & Filters */}
       <section className="patients-toolbar">
+
         <div className="search-box">
           <span>⌕</span>
+
           <input
             type="text"
             placeholder="Search patients..."
+            value={searchTerm}
+            onChange={(event) =>
+              setSearchTerm(event.target.value)
+            }
           />
         </div>
 
         <button className="filter-btn">
           All Patients ▾
         </button>
+
       </section>
 
       {/* Patient Table */}
       <section className="patients-table-card">
 
         <div className="table-header">
+
           <div>
             <h2>All Patients</h2>
-            <p>1,248 registered patients</p>
+
+            <p>
+              {patients.length} registered patients
+            </p>
           </div>
+
         </div>
 
-        <div className="table-wrapper">
-          <table>
+        {loading && (
+          <div style={{ padding: "30px", color: "#748198" }}>
+            Loading patients...
+          </div>
+        )}
 
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Patient ID</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
+        {error && (
+          <div style={{ padding: "30px", color: "#f87171" }}>
+            {error}
+          </div>
+        )}
 
-            <tbody>
+        {!loading && !error && (
+          <div className="table-wrapper">
 
-              <tr>
-                <td>
-                  <div className="patient-name">
-                    <div className="patient-avatar">AS</div>
-                    <div>
-                      <strong>Aisha Sharma</strong>
-                      <span>aisha.sharma@email.com</span>
-                    </div>
-                  </div>
-                </td>
+            <table>
 
-                <td>CF-1001</td>
-                <td>28</td>
-                <td>Female</td>
-                <td>+91 98765 43210</td>
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Patient ID</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
 
-                <td>
-                  <span className="patient-status active">
-                    Active
-                  </span>
-                </td>
+              <tbody>
 
-                <td>
-                  <button className="view-btn">
-                    View →
-                  </button>
-                </td>
-              </tr>
+                {filteredPatients.map((patient) => (
 
-              <tr>
-                <td>
-                  <div className="patient-name">
-                    <div className="patient-avatar">RM</div>
-                    <div>
-                      <strong>Rahul Mehta</strong>
-                      <span>rahul.mehta@email.com</span>
-                    </div>
-                  </div>
-                </td>
+                  <tr key={patient.id}>
 
-                <td>CF-1002</td>
-                <td>34</td>
-                <td>Male</td>
-                <td>+91 98123 45678</td>
+                    <td>
+                      <div className="patient-name">
 
-                <td>
-                  <span className="patient-status active">
-                    Active
-                  </span>
-                </td>
+                        <div className="patient-avatar">
+                          {getInitials(patient.full_name)}
+                        </div>
 
-                <td>
-                  <button className="view-btn">
-                    View →
-                  </button>
-                </td>
-              </tr>
+                        <div>
+                          <strong>
+                            {patient.full_name}
+                          </strong>
 
-              <tr>
-                <td>
-                  <div className="patient-name">
-                    <div className="patient-avatar">PK</div>
-                    <div>
-                      <strong>Priya Kapoor</strong>
-                      <span>priya.kapoor@email.com</span>
-                    </div>
-                  </div>
-                </td>
+                          <span>
+                            {patient.email ?? "No email provided"}
+                          </span>
+                        </div>
 
-                <td>CF-1003</td>
-                <td>41</td>
-                <td>Female</td>
-                <td>+91 97654 32109</td>
+                      </div>
+                    </td>
 
-                <td>
-                  <span className="patient-status active">
-                    Active
-                  </span>
-                </td>
+                    <td>
+                      {patient.patient_id}
+                    </td>
 
-                <td>
-                  <button className="view-btn">
-                    View →
-                  </button>
-                </td>
-              </tr>
+                    <td>
+                      —
+                    </td>
 
-              <tr>
-                <td>
-                  <div className="patient-name">
-                    <div className="patient-avatar">VK</div>
-                    <div>
-                      <strong>Vikram Kumar</strong>
-                      <span>vikram.kumar@email.com</span>
-                    </div>
-                  </div>
-                </td>
+                    <td>
+                      {patient.gender ?? "—"}
+                    </td>
 
-                <td>CF-1004</td>
-                <td>36</td>
-                <td>Male</td>
-                <td>+91 98987 65432</td>
+                    <td>
+                      {patient.phone ?? "—"}
+                    </td>
 
-                <td>
-                  <span className="patient-status inactive">
-                    Inactive
-                  </span>
-                </td>
+                    <td>
+                      <span
+                        className={`patient-status ${
+                          patient.status.toLowerCase() === "active"
+                            ? "active"
+                            : "inactive"
+                        }`}
+                      >
+                        {patient.status}
+                      </span>
+                    </td>
 
-                <td>
-                  <button className="view-btn">
-                    View →
-                  </button>
-                </td>
-              </tr>
+                    <td>
+                      <button className="view-btn">
+                        View →
+                      </button>
+                    </td>
 
-              <tr>
-                <td>
-                  <div className="patient-name">
-                    <div className="patient-avatar">NK</div>
-                    <div>
-                      <strong>Neha Kapoor</strong>
-                      <span>neha.kapoor@email.com</span>
-                    </div>
-                  </div>
-                </td>
+                  </tr>
 
-                <td>CF-1005</td>
-                <td>25</td>
-                <td>Female</td>
-                <td>+91 98234 56781</td>
+                ))}
 
-                <td>
-                  <span className="patient-status active">
-                    Active
-                  </span>
-                </td>
+              </tbody>
 
-                <td>
-                  <button className="view-btn">
-                    View →
-                  </button>
-                </td>
-              </tr>
+            </table>
 
-            </tbody>
+            {filteredPatients.length === 0 && (
+              <div
+                style={{
+                  padding: "30px",
+                  textAlign: "center",
+                  color: "#748198",
+                }}
+              >
+                No patients found.
+              </div>
+            )}
 
-          </table>
-        </div>
+          </div>
+        )}
 
       </section>
 

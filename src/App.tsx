@@ -1,4 +1,9 @@
-import { useState, type ComponentType } from "react"
+import {
+  useState,
+  type ComponentType,
+  type Dispatch,
+  type SetStateAction,
+} from "react"
 import { NavLink, Routes, Route } from "react-router-dom"
 import "./App.css"
 
@@ -6,24 +11,12 @@ import "./App.css"
   ============================================================
   CAREFLOW APP SHELL
 
-  Any .tsx page placed inside src/pages/ will automatically
-  become a route.
+  Pages inside src/pages/ are automatically discovered.
 
   Examples:
-
-  src/pages/dashboard.tsx
-  → /dashboard
-
-  src/pages/patients.tsx
-  → /patients
-
-  src/pages/doctors.tsx
-  → /doctors
-
-  src/pages/appointments.tsx
-  → /appointments
-
-  You do NOT need to edit App.tsx when adding those pages.
+  dashboard.tsx → /dashboard
+  patients.tsx → /patients
+  doctors.tsx → /doctors
   ============================================================
 */
 
@@ -163,17 +156,8 @@ function Sidebar({
   setSidebarOpen,
 }: {
   sidebarOpen: boolean
-  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setSidebarOpen: Dispatch<SetStateAction<boolean>>
 }) {
-
-  /*
-    Get every page automatically.
-
-    Example:
-    dashboard.tsx → dashboard
-    patients.tsx → patients
-    doctors.tsx → doctors
-  */
 
   const pages = Object.keys(pageModules)
     .map(getPageName)
@@ -216,10 +200,6 @@ function Sidebar({
       onMouseEnter={() => setSidebarOpen(true)}
     >
 
-      {/* ======================================================
-          LOGO
-          ====================================================== */}
-
       <div className="logo">
 
         <div className="logo-mark">
@@ -233,16 +213,10 @@ function Sidebar({
       </div>
 
 
-      {/* ======================================================
-          NAVIGATION
-          ====================================================== */}
-
       <nav
         className="sidebar-nav"
         onClick={(event) => event.stopPropagation()}
       >
-
-        {/* HOME */}
 
         <NavLink
           to="/"
@@ -262,8 +236,6 @@ function Sidebar({
 
         </NavLink>
 
-
-        {/* AUTOMATIC PAGES */}
 
         {pages.map((page) => (
 
@@ -289,10 +261,6 @@ function Sidebar({
 
       </nav>
 
-
-      {/* ======================================================
-          SIDEBAR BOTTOM
-          ====================================================== */}
 
       <div
         className="sidebar-bottom"
@@ -331,11 +299,6 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
 
-  /*
-    Automatically create routes for every page
-    inside src/pages/.
-  */
-
   const automaticRoutes = Object.entries(pageModules)
     .map(([filePath, module]) => {
 
@@ -348,6 +311,20 @@ function App() {
     })
 
 
+  /*
+    Patient Details uses a dynamic route.
+
+    /patients/CF-1001
+    /patients/CF-1002
+    /patients/CF-1003
+
+    All use the same Patient Details component.
+  */
+
+  const PatientDetails =
+    pageModules["./pages/patient-details.tsx"]?.default
+
+
   return (
     <div
       className={`app ${
@@ -355,25 +332,15 @@ function App() {
       }`}
     >
 
-      {/* ======================================================
-          SIDEBAR
-          ====================================================== */}
-
       <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
 
 
-      {/* ======================================================
-          MAIN CONTENT
-          ====================================================== */}
-
       <main className="main-content">
 
         <Routes>
-
-          {/* HOME */}
 
           <Route
             path="/"
@@ -381,7 +348,21 @@ function App() {
           />
 
 
-          {/* AUTOMATIC PAGE ROUTES */}
+          {/* ==================================================
+              DYNAMIC PATIENT DETAILS ROUTE
+              ================================================== */}
+
+          {PatientDetails && (
+            <Route
+              path="/patients/:patientId"
+              element={<PatientDetails />}
+            />
+          )}
+
+
+          {/* ==================================================
+              AUTOMATIC PAGE ROUTES
+              ================================================== */}
 
           {automaticRoutes.map(
             ({ pageName, Component }) => (

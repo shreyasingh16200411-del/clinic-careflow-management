@@ -1,4 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
+import {Link} from 
+"react-router-dom"
 import "./patients.css"
 
 type Patient = {
@@ -370,9 +372,14 @@ function Patients() {
                     </td>
 
                     <td>
-                      <button className="view-btn">
-                        View →
-                      </button>
+                      <Link
+  to={`/patients/${patient.patient_id}`}
+  className="view-btn"
+>
+  View →
+</Link>
+                        
+                      
                     </td>
                   </tr>
                 ))}

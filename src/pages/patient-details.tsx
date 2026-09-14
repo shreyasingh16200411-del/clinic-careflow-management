@@ -51,7 +51,13 @@ export default function PatientDetails() {
   }, [patientId])
 
   if (loading) {
-    return <div className="page">Loading patient details...</div>
+    return <div className="page">
+        <Link to="/patient"
+        className="back-link">
+            back to patients
+        </Link>
+        
+        Loading patient details...</div>
   }
 
   if (error || !patient) {

@@ -6,6 +6,7 @@ from models.user import User
 from models.patient import Patient
 from models.doctor import Doctor
 from routers.patients import router as patients_router
+from routers.doctors import router as doctors_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -28,6 +29,12 @@ app.add_middleware(
 
 app.include_router(
     patients_router,
+    prefix="/api",
+)
+
+
+app.include_router(
+    doctors_router,
     prefix="/api",
 )
 

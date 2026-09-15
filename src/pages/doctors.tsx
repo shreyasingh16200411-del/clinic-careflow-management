@@ -1,3 +1,5 @@
+import "./doctors.css"
+
 type Doctor = {
   doctor_id: number
   full_name: string
@@ -28,20 +30,59 @@ export default function Doctors() {
   ]
 
   return (
-    <div className="page">
-      <h1>Doctors</h1>
+    <div className="doctors-page">
+      <div className="doctors-header">
+        <div>
+          <h1 className="doctors-title">Doctors</h1>
 
-      <p>Manage doctors and staff information.</p>
-
-      {doctors.map((doctor) => (
-        <div key={doctor.doctor_id}>
-          <h2>{doctor.full_name}</h2>
-          <p>Specialization: {doctor.specialization}</p>
-          <p>Phone: {doctor.phone}</p>
-          <p>Email: {doctor.email}</p>
-          <p>Status: {doctor.status}</p>
+          <p className="doctors-subtitle">
+            Manage doctors and staff information.
+          </p>
         </div>
-      ))}
+      </div>
+
+      <div className="doctors-list">
+        {doctors.map((doctor) => (
+          <div className="doctor-card" key={doctor.doctor_id}>
+            <div className="doctor-card-top">
+              <div className="doctor-avatar">
+                {doctor.full_name
+                  .replace("Dr. ", "")
+                  .split(" ")
+                  .map((name) => name[0])
+                  .join("")}
+              </div>
+
+              <div>
+                <h2 className="doctor-name">{doctor.full_name}</h2>
+
+                <p className="doctor-specialization">
+                  {doctor.specialization}
+                </p>
+              </div>
+            </div>
+
+            <div className="doctor-info">
+              <div className="doctor-info-row">
+                <span className="doctor-label">Phone</span>
+                <span className="doctor-value">{doctor.phone}</span>
+              </div>
+
+              <div className="doctor-info-row">
+                <span className="doctor-label">Email</span>
+                <span className="doctor-value">{doctor.email}</span>
+              </div>
+
+              <div className="doctor-info-row">
+                <span className="doctor-label">Status</span>
+                <span className="doctor-value doctor-status">
+                  {doctor.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

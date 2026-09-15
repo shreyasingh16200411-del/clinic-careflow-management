@@ -154,10 +154,11 @@ function Sidebar({
   const pages = Object.keys(pageModules)
     .map(getPageName)
     .filter(
-      (page) =>
-        page !== "App" &&
-        page !== "patient-details",
-    )
+  (page) =>
+    page !== "App" &&
+    page !== "patient-details" &&
+    page !== "add-doctor",
+)
     .sort((a, b) => {
       const order = [
         "dashboard",

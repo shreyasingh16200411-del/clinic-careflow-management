@@ -1,3 +1,5 @@
+import {Link} from 
+"react-router-dom"
 import "./doctors.css"
 
 type Doctor = {
@@ -10,6 +12,7 @@ type Doctor = {
 }
 
 export default function Doctors() {
+
   const doctors: Doctor[] = [
     {
       doctor_id: 1,
@@ -39,7 +42,13 @@ export default function Doctors() {
             Manage doctors and staff information.
           </p>
         </div>
+      <Link to="/add-doctor">
+  + Add Doctor
+</Link>
+        
       </div>
+      
+
 
       <div className="doctors-list">
         {doctors.map((doctor) => (

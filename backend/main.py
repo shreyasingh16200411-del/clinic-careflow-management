@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database.connection import Base, engine
 from models.user import User
 from models.patient import Patient
+from models.doctor import Doctor
 from routers.patients import router as patients_router
 
 

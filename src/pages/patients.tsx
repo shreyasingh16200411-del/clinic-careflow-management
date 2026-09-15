@@ -1,6 +1,11 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react"
-import {Link} from 
-"react-router-dom"
+
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react"
+import { Link } from "react-router-dom"
 import "./patients.css"
 
 type Patient = {
@@ -47,11 +52,7 @@ const inputStyle = {
   background: "#0b111b",
   color: "#e5e7eb",
   outline: "none",
-}
-
-const textareaStyle = {
-  ...inputStyle,
-  resize: "vertical" as const,
+  boxSizing: "border-box" as const,
 }
 
 function Patients() {
@@ -59,7 +60,6 @@ function Patients() {
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-
   const [showAddForm, setShowAddForm] = useState(false)
   const [form, setForm] = useState<PatientForm>(emptyForm)
   const [saving, setSaving] = useState(false)
@@ -68,9 +68,6 @@ function Patients() {
 
   async function loadPatients() {
     try {
-      setLoading(true)
-      setError("")
-
       const response = await fetch(
         "http://127.0.0.1:8000/api/patients/",
       )
@@ -82,6 +79,7 @@ function Patients() {
       const data: Patient[] = await response.json()
 
       setPatients(data)
+      setError("")
     } catch (err) {
       console.error(err)
 
@@ -92,36 +90,17 @@ function Patients() {
       setLoading(false)
     }
   }
+
   useEffect(() => {
-  async function fetchPatients() {
-    try {
-      setLoading(true)
-      setError("")
+  const timer = window.setTimeout(() => {
+    void loadPatients()
+  }, 0)
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/patients/",
-      )
-
-      if (!response.ok) {
-        throw new Error("Failed to load patients.")
-      }
-
-      const data: Patient[] = await response.json()
-
-      setPatients(data)
-    } catch (err) {
-      console.error(err)
-
-      setError(
-        "Unable to load patients. Please make sure the CareFlow backend is running.",
-      )
-    } finally {
-      setLoading(false)
-    }
+  return () => {
+    window.clearTimeout(timer)
   }
-
-  fetchPatients()
 }, [])
+
   const filteredPatients = patients.filter((patient) => {
     const search = searchTerm.toLowerCase().trim()
 
@@ -140,7 +119,8 @@ function Patients() {
   function getInitials(name: string) {
     return name
       .split(" ")
-      .map((part) => part[0])
+      .filter(Boolean)
+      .map((part) => part[0] ?? "")
       .join("")
       .slice(0, 2)
       .toUpperCase()
@@ -153,8 +133,8 @@ function Patients() {
   ) {
     const { name, value } = event.target
 
-    setForm((currentForm) => ({
-      ...currentForm,
+    setForm((current) => ({
+      ...current,
       [name]: value,
     }))
   }
@@ -204,9 +184,12 @@ function Patients() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(
-          data.detail || "Unable to create patient.",
-        )
+        const message =
+          typeof data?.detail === "string"
+            ? data.detail
+            : "Unable to create patient."
+
+        throw new Error(message)
       }
 
       setForm(emptyForm)
@@ -230,27 +213,42 @@ function Patients() {
     }
   }
 
+  function openAddForm() {
+    setForm(emptyForm)
+    setFormError("")
+    setSuccessMessage("")
+    setShowAddForm(true)
+  }
+
+  function closeAddForm() {
+    if (saving) {
+      return
+    }
+
+    setShowAddForm(false)
+    setFormError("")
+  }
+
   return (
     <div className="patients-page">
       <header className="patients-header">
         <div>
-          <div className="eyebrow">PATIENT MANAGEMENT</div>
+          <div className="eyebrow">
+            PATIENT MANAGEMENT
+          </div>
 
           <h1>Patients</h1>
 
           <p>
-            Manage patient records, contact information, and status.
+            Manage patient records, contact information, and
+            status.
           </p>
         </div>
 
         <button
+          type="button"
           className="add-patient-btn"
-          onClick={() => {
-            setFormError("")
-            setSuccessMessage("")
-            setForm(emptyForm)
-            setShowAddForm(true)
-          }}
+          onClick={openAddForm}
         >
           + Add Patient
         </button>
@@ -285,7 +283,10 @@ function Patients() {
           />
         </div>
 
-        <button className="filter-btn">
+        <button
+          type="button"
+          className="filter-btn"
+        >
           All Patients ▾
         </button>
       </section>
@@ -302,13 +303,23 @@ function Patients() {
         </div>
 
         {loading && (
-          <div style={{ padding: "30px", color: "#748198" }}>
+          <div
+            style={{
+              padding: "30px",
+              color: "#748198",
+            }}
+          >
             Loading patients...
           </div>
         )}
 
-        {error && (
-          <div style={{ padding: "30px", color: "#f87171" }}>
+        {!loading && error && (
+          <div
+            style={{
+              padding: "30px",
+              color: "#f87171",
+            }}
+          >
             {error}
           </div>
         )}
@@ -354,9 +365,13 @@ function Patients() {
 
                     <td>—</td>
 
-                    <td>{patient.gender ?? "—"}</td>
+                    <td>
+                      {patient.gender ?? "—"}
+                    </td>
 
-                    <td>{patient.phone ?? "—"}</td>
+                    <td>
+                      {patient.phone ?? "—"}
+                    </td>
 
                     <td>
                       <span
@@ -373,13 +388,13 @@ function Patients() {
 
                     <td>
                       <Link
-  to={`/patients/${patient.patient_id}`}
-  className="view-btn"
->
-  View →
-</Link>
-                        
-                      
+                        to={`/patients/${encodeURIComponent(
+                          patient.patient_id,
+                        )}`}
+                        className="view-btn"
+                      >
+                        View →
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -403,11 +418,7 @@ function Patients() {
 
       {showAddForm && (
         <div
-          onClick={() => {
-            if (!saving) {
-              setShowAddForm(false)
-            }
-          }}
+          onClick={closeAddForm}
           style={{
             position: "fixed",
             inset: 0,
@@ -421,7 +432,9 @@ function Patients() {
           }}
         >
           <div
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
             style={{
               width: "100%",
               maxWidth: "720px",
@@ -444,11 +457,13 @@ function Patients() {
               }}
             >
               <div>
-                <div className="eyebrow">NEW RECORD</div>
+                <div className="eyebrow">
+                  NEW RECORD
+                </div>
 
                 <h2
                   style={{
-                    margin: "6px 0 6px",
+                    margin: "6px 0",
                     color: "#f3f4f6",
                   }}
                 >
@@ -467,7 +482,7 @@ function Patients() {
 
               <button
                 type="button"
-                onClick={() => setShowAddForm(false)}
+                onClick={closeAddForm}
                 disabled={saving}
                 style={{
                   border: "none",
@@ -520,6 +535,7 @@ function Patients() {
                   </span>
 
                   <input
+                    type="text"
                     name="full_name"
                     value={form.full_name}
                     onChange={handleFormChange}
@@ -568,10 +584,21 @@ function Patients() {
                     onChange={handleFormChange}
                     style={inputStyle}
                   >
-                    <option value="">Select gender</option>
-                    <option value="Female">Female</option>
-                    <option value="Male">Male</option>
-                    <option value="Other">Other</option>
+                    <option value="">
+                      Select gender
+                    </option>
+
+                    <option value="Female">
+                      Female
+                    </option>
+
+                    <option value="Male">
+                      Male
+                    </option>
+
+                    <option value="Other">
+                      Other
+                    </option>
                   </select>
                 </label>
 
@@ -646,7 +673,10 @@ function Patients() {
                     onChange={handleFormChange}
                     placeholder="Enter address"
                     rows={2}
-                    style={textareaStyle}
+                    style={{
+                      ...inputStyle,
+                      resize: "vertical",
+                    }}
                   />
                 </label>
 
@@ -668,7 +698,10 @@ function Patients() {
                     onChange={handleFormChange}
                     placeholder="Optional"
                     rows={3}
-                    style={textareaStyle}
+                    style={{
+                      ...inputStyle,
+                      resize: "vertical",
+                    }}
                   />
                 </label>
 
@@ -690,7 +723,10 @@ function Patients() {
                     onChange={handleFormChange}
                     placeholder="Optional"
                     rows={3}
-                    style={textareaStyle}
+                    style={{
+                      ...inputStyle,
+                      resize: "vertical",
+                    }}
                   />
                 </label>
               </div>
@@ -705,7 +741,7 @@ function Patients() {
               >
                 <button
                   type="button"
-                  onClick={() => setShowAddForm(false)}
+                  onClick={closeAddForm}
                   disabled={saving}
                   className="filter-btn"
                 >
@@ -717,7 +753,9 @@ function Patients() {
                   disabled={saving}
                   className="add-patient-btn"
                 >
-                  {saving ? "Saving..." : "Create Patient"}
+                  {saving
+                    ? "Saving..."
+                    : "Create Patient"}
                 </button>
               </div>
             </form>

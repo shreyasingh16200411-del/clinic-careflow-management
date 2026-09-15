@@ -4,7 +4,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react"
-import { NavLink, Routes, Route } from "react-router-dom"
+import { NavLink, Route, Routes } from "react-router-dom"
 import "./App.css"
 
 /*
@@ -14,9 +14,16 @@ import "./App.css"
   Pages inside src/pages/ are automatically discovered.
 
   Examples:
-  dashboard.tsx → /dashboard
-  patients.tsx → /patients
-  doctors.tsx → /doctors
+  dashboard.tsx     → /dashboard
+  patients.tsx      → /patients
+  doctors.tsx       → /doctors
+  appointments.tsx  → /appointments
+  services.tsx      → /services
+  reports.tsx       → /reports
+  settings.tsx      → /settings
+
+  Patient details is a special dynamic page:
+  /patients/:patientId
   ============================================================
 */
 
@@ -44,13 +51,8 @@ function getPageName(filePath: string) {
     .pop()
     ?.replace(".tsx", "")
 
-  if (!fileName) {
-    return ""
-  }
-
-  return fileName
+  return fileName ?? ""
 }
-
 
 function formatPageName(name: string) {
   return name
@@ -66,9 +68,7 @@ function formatPageName(name: string) {
 function Home() {
   return (
     <div className="home-page">
-
       <div className="home-content">
-
         <div className="home-eyebrow">
           CAREFLOW CLINIC MANAGEMENT
         </div>
@@ -85,7 +85,6 @@ function Home() {
         </p>
 
         <div className="home-actions">
-
           <NavLink
             to="/dashboard"
             className="primary-button"
@@ -99,14 +98,10 @@ function Home() {
           >
             View Patients
           </NavLink>
-
         </div>
-
       </div>
 
-
       <div className="home-overview">
-
         <div className="overview-card">
           <span>ACTIVE PATIENTS</span>
           <strong>1,248</strong>
@@ -124,9 +119,7 @@ function Home() {
           <strong>₹8.4L</strong>
           <small>↑ 12.5% this month</small>
         </div>
-
       </div>
-
     </div>
   )
 }
@@ -158,12 +151,14 @@ function Sidebar({
   sidebarOpen: boolean
   setSidebarOpen: Dispatch<SetStateAction<boolean>>
 }) {
-
   const pages = Object.keys(pageModules)
     .map(getPageName)
-    .filter((page) => page !== "App")
+    .filter(
+      (page) =>
+        page !== "App" &&
+        page !== "patient-details",
+    )
     .sort((a, b) => {
-
       const order = [
         "dashboard",
         "patients",
@@ -192,16 +187,17 @@ function Sidebar({
       return aIndex - bIndex
     })
 
-
   return (
     <aside
-      className={`sidebar ${sidebarOpen ? "sidebar-expanded" : ""}`}
-      onClick={() => setSidebarOpen((current) => !current)}
+      className={`sidebar ${
+        sidebarOpen ? "sidebar-expanded" : ""
+      }`}
+      onClick={() =>
+        setSidebarOpen((current) => !current)
+      }
       onMouseEnter={() => setSidebarOpen(true)}
     >
-
       <div className="logo">
-
         <div className="logo-mark">
           ✚
         </div>
@@ -209,23 +205,23 @@ function Sidebar({
         <strong>
           CareFlow
         </strong>
-
       </div>
-
 
       <nav
         className="sidebar-nav"
-        onClick={(event) => event.stopPropagation()}
+        onClick={(event) =>
+          event.stopPropagation()
+        }
       >
-
         <NavLink
           to="/"
           end
           className={({ isActive }) =>
-            `nav-item ${isActive ? "active" : ""}`
+            `nav-item ${
+              isActive ? "active" : ""
+            }`
           }
         >
-
           <span className="nav-icon">
             ⌂
           </span>
@@ -233,20 +229,18 @@ function Sidebar({
           <span className="nav-label">
             Home
           </span>
-
         </NavLink>
 
-
         {pages.map((page) => (
-
           <NavLink
             key={page}
             to={`/${page}`}
             className={({ isActive }) =>
-              `nav-item ${isActive ? "active" : ""}`
+              `nav-item ${
+                isActive ? "active" : ""
+              }`
             }
           >
-
             <span className="nav-icon">
               {icons[page] ?? "•"}
             </span>
@@ -254,25 +248,21 @@ function Sidebar({
             <span className="nav-label">
               {formatPageName(page)}
             </span>
-
           </NavLink>
-
         ))}
-
       </nav>
-
 
       <div
         className="sidebar-bottom"
-        onClick={(event) => event.stopPropagation()}
+        onClick={(event) =>
+          event.stopPropagation()
+        }
       >
-
         <div className="admin-avatar">
           DA
         </div>
 
         <div className="admin-info">
-
           <strong>
             Dr. Admin
           </strong>
@@ -280,11 +270,8 @@ function Sidebar({
           <span>
             Administrator
           </span>
-
         </div>
-
       </div>
-
     </aside>
   )
 }
@@ -295,62 +282,61 @@ function Sidebar({
    ============================================================ */
 
 function App() {
-
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
-
-  const automaticRoutes = Object.entries(pageModules)
-    .map(([filePath, module]) => {
-
-      const pageName = getPageName(filePath)
-
-      return {
-        pageName,
-        Component: module.default,
-      }
-    })
-
+  const [sidebarOpen, setSidebarOpen] =
+    useState(false)
 
   /*
-    Patient Details uses a dynamic route.
-
-    /patients/CF-1001
-    /patients/CF-1002
-    /patients/CF-1003
-
-    All use the same Patient Details component.
+    Patient details is deliberately excluded from
+    automatic routes because it needs a dynamic URL.
   */
 
-  const PatientDetails =
-    pageModules["./pages/patient-details.tsx"]?.default
+  const automaticRoutes = Object.entries(
+    pageModules,
+  )
+    .map(([filePath, module]) => ({
+      pageName: getPageName(filePath),
+      Component: module.default,
+    }))
+    .filter(
+      ({ pageName }) =>
+        pageName !== "App" &&
+        pageName !== "patient-details",
+    )
 
+  const PatientDetails =
+    pageModules[
+      "./pages/patient-details.tsx"
+    ]?.default
 
   return (
     <div
       className={`app ${
-        sidebarOpen ? "sidebar-open" : ""
+        sidebarOpen
+          ? "sidebar-open"
+          : ""
       }`}
     >
-
       <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
 
-
       <main className="main-content">
-
         <Routes>
-
+          {/* Home */}
           <Route
             path="/"
             element={<Home />}
           />
 
-
           {/* ==================================================
               DYNAMIC PATIENT DETAILS ROUTE
-              ================================================== */}
+
+              Example:
+              /patients/CF-1001
+              /patients/CF-1002
+              /patients/123
+             ================================================== */}
 
           {PatientDetails && (
             <Route
@@ -359,30 +345,26 @@ function App() {
             />
           )}
 
-
           {/* ==================================================
-              AUTOMATIC PAGE ROUTES
-              ================================================== */}
+              AUTOMATIC NORMAL PAGE ROUTES
+             ================================================== */}
 
           {automaticRoutes.map(
-            ({ pageName, Component }) => (
-
+            ({
+              pageName,
+              Component,
+            }) => (
               <Route
                 key={pageName}
                 path={`/${pageName}`}
                 element={<Component />}
               />
-
-            )
+            ),
           )}
-
         </Routes>
-
       </main>
-
     </div>
   )
 }
-
 
 export default App

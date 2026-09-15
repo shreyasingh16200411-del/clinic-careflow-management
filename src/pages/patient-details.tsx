@@ -1,32 +1,41 @@
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
+import "./patient details.css"
 
 type Patient = {
-  id: number
-  patient_id: string
+  patient_id: number
   full_name: string
-  date_of_birth: string | null
-  gender: string | null
-  phone: string | null
-  email: string | null
-  address: string | null
-  medical_history: string | null
-  allergies: string | null
+  date_of_birth: string
+  gender: string
+  phone: string
+  email: string
+  address: string
+  blood_group: string
+  medical_history: string
+  allergies: string
   status: string
 }
 
 export default function PatientDetails() {
-  const { patientId } = useParams()
+  const { patientId } = useParams<{ patientId: string }>()
+
   const [patient, setPatient] = useState<Patient | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    async function loadPatient() {
-      try {
-        setLoading(true)
-        setError("")
+    let cancelled = false
 
+    async function loadPatient() {
+      if (!patientId) {
+        if (!cancelled) {
+          setError("Patient ID is missing.")
+          setLoading(false)
+        }
+        return
+      }
+
+      try {
         const response = await fetch(
           `http://127.0.0.1:8000/api/patients/${patientId}`,
         )
@@ -36,102 +45,220 @@ export default function PatientDetails() {
         }
 
         const data: Patient = await response.json()
-        setPatient(data)
+
+        if (!cancelled) {
+          setPatient(data)
+        }
       } catch (err) {
         console.error(err)
-        setError("Unable to load patient details.")
+
+        if (!cancelled) {
+          if (err instanceof Error) {
+            setError(err.message)
+          } else {
+            setError("Unable to load patient details.")
+          }
+        }
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
-    if (patientId) {
-      loadPatient()
+    loadPatient()
+
+    return () => {
+      cancelled = true
     }
   }, [patientId])
 
   if (loading) {
-    return <div className="page">
-        <Link to="/patient"
-        className="back-link">
-            back to patients
+    return (
+      <div className="patient-details-page">
+        <Link to="/patients" className="patient-details-back">
+          ← Back to Patients
         </Link>
-        
-        Loading patient details...</div>
+
+        <p className="patient-details-loading">
+          Loading patient details...
+        </p>
+      </div>
+    )
   }
 
   if (error || !patient) {
     return (
-      <div className="page">
-        <h2>Patient not found</h2>
-        <p>{error}</p>
-
-        <Link to="/patients">
+      <div className="patient-details-page">
+        <Link to="/patients" className="patient-details-back">
           ← Back to Patients
         </Link>
+
+        <div className="patient-details-error">
+          <h2>Unable to load patient</h2>
+
+          <p>{error || "Patient details are unavailable."}</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="page">
-      <Link to="/patients">
+    <div className="patient-details-page">
+      <Link to="/patients" className="patient-details-back">
         ← Back to Patients
       </Link>
 
-      <div style={{ marginTop: "24px" }}>
-        <h1>{patient.full_name}</h1>
+      <div className="patient-details-header">
+        <div className="patient-profile-left">
+          <div className="patient-details-avatar">
+            {patient.full_name.charAt(0).toUpperCase()}
+          </div>
 
-        <p>
-          Patient ID: <strong>{patient.patient_id}</strong>
-        </p>
+          <div>
+            <h1 className="patient-details-name">
+              {patient.full_name}
+            </h1>
 
-        <p>
-          Status: <strong>{patient.status}</strong>
-        </p>
+            <p className="patient-details-id">
+              Patient ID: {patient.patient_id}
+            </p>
+          </div>
+        </div>
 
-        <hr />
+        <span className="patient-details-status">
+          {patient.status}
+        </span>
+      </div>
 
-        <h2>Personal Information</h2>
+      <div className="patient-details-grid">
+        <section className="patient-details-card">
+          <h2 className="patient-details-card-title">
+            Personal Information
+          </h2>
 
-        <p>
-          <strong>Date of Birth:</strong>{" "}
-          {patient.date_of_birth || "Not provided"}
-        </p>
+          <div className="patient-info-list">
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Date of Birth
+              </span>
 
-        <p>
-          <strong>Gender:</strong>{" "}
-          {patient.gender || "Not provided"}
-        </p>
+              <span className="patient-info-value">
+                {patient.date_of_birth || (
+                  <span className="patient-empty-value">
+                    Not provided
+                  </span>
+                )}
+              </span>
+            </div>
 
-        <p>
-          <strong>Phone:</strong>{" "}
-          {patient.phone || "Not provided"}
-        </p>
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Gender
+              </span>
 
-        <p>
-          <strong>Email:</strong>{" "}
-          {patient.email || "Not provided"}
-        </p>
+              <span className="patient-info-value">
+                {patient.gender || (
+                  <span className="patient-empty-value">
+                    Not provided
+                  </span>
+                )}
+              </span>
+            </div>
 
-        <p>
-          <strong>Address:</strong>{" "}
-          {patient.address || "Not provided"}
-        </p>
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Phone
+              </span>
 
-        <hr />
+              <span className="patient-info-value">
+                {patient.phone || (
+                  <span className="patient-empty-value">
+                    Not provided
+                  </span>
+                )}
+              </span>
+            </div>
 
-        <h2>Medical Information</h2>
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Email
+              </span>
 
-        <p>
-          <strong>Medical History:</strong>{" "}
-          {patient.medical_history || "None provided"}
-        </p>
+              <span className="patient-info-value">
+                {patient.email || (
+                  <span className="patient-empty-value">
+                    Not provided
+                  </span>
+                )}
+              </span>
+            </div>
 
-        <p>
-          <strong>Allergies:</strong>{" "}
-          {patient.allergies || "None provided"}
-        </p>
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Address
+              </span>
+
+              <span className="patient-info-value">
+                {patient.address || (
+                  <span className="patient-empty-value">
+                    Not provided
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="patient-details-card">
+          <h2 className="patient-details-card-title">
+            Medical Information
+          </h2>
+
+          <div className="patient-info-list">
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Blood Group
+              </span>
+
+              <span className="patient-info-value">
+                {patient.blood_group || (
+                  <span className="patient-empty-value">
+                    Not provided
+                  </span>
+                )}
+              </span>
+            </div>
+
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Medical History
+              </span>
+
+              <span className="patient-info-value">
+                {patient.medical_history || (
+                  <span className="patient-empty-value">
+                    None
+                  </span>
+                )}
+              </span>
+            </div>
+
+            <div className="patient-info-row">
+              <span className="patient-info-label">
+                Allergies
+              </span>
+
+              <span className="patient-info-value">
+                {patient.allergies || (
+                  <span className="patient-empty-value">
+                    None
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )
